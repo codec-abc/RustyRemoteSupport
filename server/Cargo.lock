@@ -802,6 +802,7 @@ dependencies = [
 name = "server"
 version = "0.1.0"
 dependencies = [
+ "shared",
  "tokio",
  "warp",
 ]
@@ -830,6 +831,10 @@ dependencies = [
  "digest 0.9.0",
  "opaque-debug 0.3.0",
 ]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
 
 [[package]]
 name = "slab"

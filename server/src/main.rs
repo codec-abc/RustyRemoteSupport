@@ -3,6 +3,10 @@ use warp::Filter;
 
 #[tokio::main]
 async fn main() {
+
+
+    println!("Answer to everything is {}", shared::ANSWER_TO_EVERYTHING);
+
     let index = 
         warp::get()
         .and(warp::path::end())

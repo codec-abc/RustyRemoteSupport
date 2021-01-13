@@ -1,18 +1,19 @@
 use seed::{prelude::*, *};
+use shared;
 
 fn init(_: Url, _: &mut impl Orders<Msg>) -> Model {
-    Model::default()
+    shared::ANSWER_TO_EVERYTHING
 }
 
 type Model = i32;
 
 enum Msg {
-    Increment,
+    Decrement,
 }
 
 fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
     match msg {
-        Msg::Increment => *model += 1,
+        Msg::Decrement => *model -= 1,
     }
 }
 
@@ -20,7 +21,7 @@ fn view(model: &Model) -> Node<Msg> {
     div![
         C!["counter"],
         "This is a counter: ",
-        button![model, ev(Ev::Click, |_| Msg::Increment),],
+        button![model, ev(Ev::Click, |_| Msg::Decrement),],
     ]
 }
 
