@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+     <!-- Bootstrap CSS -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+
+<body class="bg-light" style="height: 100vh;">
+    <script type="module" type="text/javascript">
+        import init from '/static/package.js';
+        init('/static/package_bg.wasm');
+    </script>
+    <div class="container vertical-center bg-white rounded shadow-sm h-100">
+        <div class="row h-auto">
+            <div class="col" align="center">
+                <div class="starter-template">
+                    <h1>Remote support</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center h-75">
+            <div class="col" align="center">
+                <section id="app"></section>
+            </div>
+        </div>
+    </div>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
