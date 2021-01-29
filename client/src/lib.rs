@@ -43,7 +43,7 @@ fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>, time: Res<Time>, m
         let delta_seconds = time.delta_seconds();
 
         for (_camera, mut transform) in cam_query.iter_mut() {
-            let right = transform.rotation * Vec3::unit_x();
+            let right = -transform.rotation * Vec3::unit_x();
             transform.translation += right * delta_seconds;
         }
     }
@@ -104,6 +104,7 @@ pub fn start() {
         .add_resource(WindowDescriptor {
             width: 300.,
             height: 300.,
+            #[cfg(target_arch = "wasm32")]
             canvas: Some("#bevy_canvas".into()),
             ..Default::default()
         })
