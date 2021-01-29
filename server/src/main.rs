@@ -1,4 +1,3 @@
-use warp::path;
 use warp::Filter;
 
 #[tokio::main]
