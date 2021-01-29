@@ -3,6 +3,9 @@ use bevy::{prelude::*};
 use bevy::{
     input::{keyboard::KeyCode, Input},
 };
+
+use bevy::render::camera::Camera;
+
 use shared;
 
 fn init(_: Url, _: &mut impl Orders<Msg>) -> Model {
@@ -32,10 +35,17 @@ fn view(model: &Model) -> seed::prelude::Node<Msg> {
 ///////////////////// BEVY ////////////////////
 
 /// This system prints 'A' key state
-fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>) {
+fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>, time: Res<Time>, mut cam_query: Query<(&Camera, &mut Transform)>) {
     //info!("keyboard_input_system running!");
     if keyboard_input.pressed(KeyCode::A) {
         info!("'A' currently pressed");
+
+        let delta_seconds = time.delta_seconds();
+
+        for (_camera, mut transform) in cam_query.iter_mut() {
+            let right = transform.rotation * Vec3::unit_x();
+            transform.translation += right * delta_seconds;
+        }
     }
 
     if keyboard_input.just_pressed(KeyCode::A) {
