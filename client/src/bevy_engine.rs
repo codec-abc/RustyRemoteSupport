@@ -1,4 +1,7 @@
-use std::{ops::DerefMut, sync::{Arc, Mutex}};
+use std::{borrow::BorrowMut, ops::DerefMut, sync::{Arc, Mutex}};
+
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
 
 use bevy::{prelude::*};
 use bevy::{
@@ -6,9 +9,17 @@ use bevy::{
 };
 
 use bevy::render::camera::Camera;
+use seed::{main, virtual_dom::Mailbox};
+use crate::seed_ui::{Msg, BevyMsg};
 
 /// This system prints 'A' key state
-fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>, time: Res<Time>, mut cam_query: Query<(&Camera, &mut Transform)>) {
+fn keyboard_input_system(
+    keyboard_input: Res<Input<KeyCode>>, 
+    time: Res<Time>, 
+    mut cam_query: Query<(&Camera, &mut Transform)>,
+    mut seed_channel: ResMut<SeedMsgSender>
+) 
+{
     //info!("keyboard_input_system running!");
     if keyboard_input.pressed(KeyCode::A) {
         info!("'A' currently pressed");
@@ -23,6 +34,8 @@ fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>, time: Res<Time>, m
 
     if keyboard_input.just_pressed(KeyCode::A) {
         info!("'A' just pressed");
+        let mut seed_msg_sender = seed_channel.deref_mut().sender.lock().unwrap();
+        seed_msg_sender.send(BevyMsg::Debug("A pushed".into()));
     }
 
     if keyboard_input.just_released(KeyCode::A) {
@@ -63,8 +76,7 @@ fn setup(
         });
 }
 
-pub struct ExternalEvent
-{
+pub struct ExternalEvent {
     messages: Arc<Mutex<Vec<String>>>
 }
 
@@ -74,6 +86,23 @@ impl ExternalEvent {
             messages
         } 
     }
+}
+
+pub struct SeedMsgSender {
+    pub sender: Mutex<Sender<BevyMsg>>
+}
+
+impl SeedMsgSender {
+    pub fn new(sender: Sender<BevyMsg>) -> Self { 
+        Self { 
+            sender: Mutex::new(sender)
+        } 
+    }
+}
+
+pub fn create_seed_channel() -> (Sender<BevyMsg>, Receiver<BevyMsg>) {
+    let (tx, rx): (Sender<BevyMsg>, Receiver<BevyMsg>) = mpsc::channel();
+    (tx, rx)
 }
 
 fn external_event_loop_runner(mut external_event_loop: ResMut<ExternalEvent>) {
@@ -88,7 +117,10 @@ fn external_event_loop_runner(mut external_event_loop: ResMut<ExternalEvent>) {
     messages.clear();
 }
 
-pub fn create_bevy_app(inner_external_event_loop: Arc<Mutex<Vec<String>>>) -> AppBuilder
+pub fn create_bevy_app(
+    inner_external_event_loop: Arc<Mutex<Vec<String>>>,
+    sender: Sender<BevyMsg>
+) -> AppBuilder
 {
     let mut app = bevy::app::App::build();
 
@@ -102,15 +134,12 @@ pub fn create_bevy_app(inner_external_event_loop: Arc<Mutex<Vec<String>>>) -> Ap
         })
         .add_resource(Msaa { samples: 4 })
         .add_resource(ExternalEvent::new(inner_external_event_loop))
+        .add_resource(SeedMsgSender::new(sender))
         .add_plugins(DefaultPlugins)
         .add_plugin(bevy_webgl2::WebGL2Plugin)
-        //.add_system(hello_wasm_system.system())
         .add_system(keyboard_input_system.system())
         .add_system(external_event_loop_runner.system())
         .add_startup_system(setup.system());
-
-        //.set_runner(my_runner)
-        //.run();
 
     app
 }

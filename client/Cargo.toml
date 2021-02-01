@@ -12,6 +12,7 @@ wasm-bindgen-test = "0.3.18"
 
 [dependencies]
 seed = "0.8.0"
+enclose = "1.1.8"
 shared = { path = "../shared" }
 bevy_webgl2 = {version="0.4.0"}
 

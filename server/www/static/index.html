@@ -12,7 +12,29 @@
 <body class="bg-light" style="height: 100vh;">
     <script type="module" type="text/javascript">
         import init from '/static/package.js';
-        init('/static/package_bg.wasm');
+        import { start } from '/static/package.js';
+
+        console.log("Here");
+
+        window.enableTick = () => {
+            const sendTick = () => {
+                js_tick(0);
+            };
+            sendTick();
+
+            setInterval(() => {
+                sendTick();
+            }, 3);
+        };
+
+        init('/static/package_bg.wasm').then(() => {
+            console.log("init done");
+            const [js_ready, js_tick] = start();
+            console.log("start done");
+            window.js_tick = js_tick;
+            console.log("calling js_ready");
+            js_ready(true);
+        });
     </script>
     <div class="container vertical-center bg-white rounded shadow-sm h-100">
         <div class="row h-auto">
