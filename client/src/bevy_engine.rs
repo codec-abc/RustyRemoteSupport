@@ -1,3 +1,5 @@
+use std::{ops::DerefMut, sync::{Arc, Mutex}};
+
 use bevy::{prelude::*};
 use bevy::{
     input::{keyboard::KeyCode, Input},
@@ -61,7 +63,32 @@ fn setup(
         });
 }
 
-pub fn create_bevy_app() -> AppBuilder
+pub struct ExternalEvent
+{
+    messages: Arc<Mutex<Vec<String>>>
+}
+
+impl ExternalEvent {
+    pub fn new(messages: Arc<Mutex<Vec<String>>>) -> Self { 
+        Self { 
+            messages
+        } 
+    }
+}
+
+fn external_event_loop_runner(mut external_event_loop: ResMut<ExternalEvent>) {
+    let external_event_loop = external_event_loop.deref_mut();
+    let mut messages = external_event_loop.messages.lock().unwrap();
+    let messages = messages.deref_mut();
+
+    for message in messages.iter() {
+        info!("We have got a message {}", message);
+    }
+
+    messages.clear();
+}
+
+pub fn create_bevy_app(inner_external_event_loop: Arc<Mutex<Vec<String>>>) -> AppBuilder
 {
     let mut app = bevy::app::App::build();
 
@@ -74,12 +101,14 @@ pub fn create_bevy_app() -> AppBuilder
             ..Default::default()
         })
         .add_resource(Msaa { samples: 4 })
+        .add_resource(ExternalEvent::new(inner_external_event_loop))
         .add_plugins(DefaultPlugins)
         .add_plugin(bevy_webgl2::WebGL2Plugin)
         //.add_system(hello_wasm_system.system())
         .add_system(keyboard_input_system.system())
+        .add_system(external_event_loop_runner.system())
         .add_startup_system(setup.system());
-        
+
         //.set_runner(my_runner)
         //.run();
 
