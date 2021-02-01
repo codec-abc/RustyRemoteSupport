@@ -1,10 +1,10 @@
+use std::net::SocketAddr;
+
 use warp::Filter;
 
 #[tokio::main]
 async fn main() {
-
-
-    println!("Answer to everything is {}", shared::ANSWER_TO_EVERYTHING);
+    //println!("Answer to everything is {}", shared::ANSWER_TO_EVERYTHING);
 
     let index = 
         warp::get()
@@ -15,6 +15,11 @@ async fn main() {
         warp::get().and(warp::path("static")).and(warp::fs::dir("./www/static"));
 
     let routes = index.or(static_files);
+    
+    let server = "127.0.0.1:3000";
+    let ip: SocketAddr = server.parse().unwrap();
 
-    warp::serve(routes).run(([127, 0, 0, 1], 3000)).await;
+    println!("Server running on http://{}", server);
+
+    warp::serve(routes).run(ip).await;
 }
